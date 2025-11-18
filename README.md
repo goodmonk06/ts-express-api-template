@@ -2,84 +2,103 @@
 
 A production-ready Express + TypeScript REST API template with authentication, database integration, and comprehensive tooling.
 
-## Features
+## Overview
 
-- **TypeScript** - Type safety and modern JavaScript features
-- **Express.js** - Fast, minimalist web framework
-- **PostgreSQL + Prisma** - Type-safe database ORM
-- **JWT Authentication** - Secure user authentication with JSON Web Tokens
-- **Validation** - Request validation with Zod
-- **Logging** - Structured logging with Winston
-- **CORS** - Configurable Cross-Origin Resource Sharing
-- **Rate Limiting** - Request rate limiting for API protection
-- **API Documentation** - Interactive Swagger/OpenAPI documentation
-- **Testing** - Jest with Supertest for comprehensive testing
-- **Docker** - Multi-stage Dockerfile and Docker Compose setup
-- **CI/CD** - GitHub Actions workflow for automated testing and building
-- **Code Quality** - ESLint + Prettier for consistent code style
-- **Clean Architecture** - Organized in layers (routes, controllers, services, middleware, validators)
+This template provides a solid foundation for building scalable REST APIs with TypeScript and Express. It includes a complete authentication system, database integration with Prisma ORM, comprehensive testing setup, and Docker support for easy deployment.
 
-## Project Structure
+The project follows clean architecture principles with clear separation of concerns across layers: routes, controllers, services, and data access.
 
-```
-ts-express-api-template/
-├── .github/
-│   └── workflows/        # GitHub Actions CI/CD workflows
-├── prisma/
-│   └── schema.prisma     # Prisma database schema
-├── src/
-│   ├── config/           # Configuration files (env, database, logger, jwt, swagger)
-│   ├── controllers/      # Request handlers
-│   ├── middleware/       # Custom middleware (auth, validation, logger, error)
-│   ├── routes/           # API routes
-│   ├── services/         # Business logic
-│   ├── validators/       # Zod validation schemas
-│   ├── app.ts            # Express app setup
-│   └── index.ts          # Application entry point
-├── tests/                # Test files
-├── logs/                 # Application logs
-├── dist/                 # Compiled JavaScript (after build)
-├── .env.example          # Environment variables template
-├── docker-compose.yml    # Docker Compose configuration
-├── Dockerfile            # Docker configuration
-├── jest.config.js        # Jest testing configuration
-├── tsconfig.json         # TypeScript configuration
-├── eslint.config.mjs     # ESLint configuration
-└── .prettierrc           # Prettier configuration
-```
+## Tech Stack
 
-## Prerequisites
+**Core:**
+- **Node.js 22** - JavaScript runtime
+- **TypeScript 5.9** - Type-safe JavaScript
+- **Express 5** - Web framework
+- **PostgreSQL** - Relational database
+- **Prisma 6** - Type-safe ORM
 
-- **Node.js** >= 22.x
-- **pnpm** (recommended) or npm
-- **PostgreSQL** (or use Docker Compose)
-- **Docker** (optional, for containerized development)
+**Authentication & Security:**
+- **JWT** - Token-based authentication
+- **bcryptjs** - Password hashing
+- **CORS** - Cross-origin resource sharing
+- **express-rate-limit** - API rate limiting
+
+**Validation & Logging:**
+- **Zod** - Schema validation
+- **Winston** - Structured logging
+
+**Development & Testing:**
+- **Jest** - Testing framework
+- **Supertest** - HTTP assertion library
+- **ESLint + Prettier** - Code quality tools
+- **ts-node-dev** - Development hot reload
+
+**DevOps:**
+- **Docker** - Containerization
+- **Docker Compose** - Multi-container orchestration
+- **GitHub Actions** - CI/CD pipeline
+
+**Documentation:**
+- **Swagger/OpenAPI** - Interactive API documentation
+
+## Domain Model
+
+### User Entity
+
+The core entity in this system is the **User**, representing authenticated users of the API.
+
+**Fields:**
+- `id` (UUID) - Unique identifier
+- `email` (String, unique) - User email address
+- `password` (String, hashed) - User password
+- `name` (String, optional) - User display name
+- `createdAt` (DateTime) - Account creation timestamp
+- `updatedAt` (DateTime) - Last update timestamp
+
+**Key Operations:**
+- User registration with email/password
+- User authentication (login)
+- Profile management (read, update, delete)
+- User listing (authenticated users only)
 
 ## Getting Started
 
-### 1. Install Dependencies
+### Requirements
+
+- **Node.js** >= 22.x
+- **pnpm** >= 10.x (or npm/yarn)
+- **PostgreSQL** >= 14.x (or use Docker Compose)
+- **Docker** & **Docker Compose** (optional, recommended)
+
+### Setup Steps
+
+#### 1. Clone and Install
 
 ```bash
+# Clone the repository
+git clone <repository-url>
+cd ts-express-api-template
+
+# Install dependencies
 pnpm install
 ```
 
-### 2. Set Up Environment Variables
-
-Copy the example environment file and configure as needed:
+#### 2. Environment Configuration
 
 ```bash
+# Copy example environment file
 cp .env.example .env
 ```
 
-Edit `.env` to set your configuration:
+Edit `.env` with your configuration:
 
 ```env
-# Server Configuration
+# Server
 PORT=3000
 NODE_ENV=development
 
 # Database
-DATABASE_URL="postgresql://user:password@localhost:5432/mydb?schema=public"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/mydb?schema=public"
 
 # JWT
 JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
@@ -89,119 +108,58 @@ JWT_EXPIRES_IN=7d
 ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001
 ```
 
-### 3. Database Setup
+#### 3. Database Setup
 
-Generate Prisma Client:
+**Option A: Using Docker Compose (Recommended)**
 
 ```bash
-pnpm prisma:generate
+# Start PostgreSQL and application
+docker-compose up -d
+
+# The database migrations will run automatically
+# Seed the database with demo data
+docker-compose exec app pnpm db:seed
 ```
 
-Run database migrations:
+**Option B: Local PostgreSQL**
 
 ```bash
-pnpm prisma:migrate
+# Generate Prisma Client
+pnpm db:generate
+
+# Run database migrations
+pnpm db:migrate
+
+# Seed the database with demo data
+pnpm db:seed
 ```
 
-### 4. Development
-
-Run the application in development mode with hot reload:
+#### 4. Start Development Server
 
 ```bash
+# Start with hot reload
 pnpm dev
 ```
 
-The server will start at `http://localhost:3000`
+The API will be available at `http://localhost:3000`
 
-### 5. Using Docker
+## Example Flow: User Management
 
-Start the entire stack (app + PostgreSQL) with Docker Compose:
+This implementation provides a complete vertical slice for user management, from registration to CRUD operations.
 
-```bash
-docker-compose up -d
-```
-
-Stop the services:
+### 1. Register a New User
 
 ```bash
-docker-compose down
-```
-
-### 6. Build for Production
-
-Compile TypeScript to JavaScript:
-
-```bash
-pnpm build
-```
-
-This creates a `dist/` directory with compiled JavaScript files.
-
-### 7. Start Production Server
-
-Run the compiled application:
-
-```bash
-pnpm start
-```
-
-## Available Scripts
-
-| Script | Description |
-|--------|-------------|
-| `pnpm dev` | Start development server with hot reload |
-| `pnpm build` | Compile TypeScript to JavaScript |
-| `pnpm start` | Run the production build |
-| `pnpm test` | Run tests with Jest |
-| `pnpm test:watch` | Run tests in watch mode |
-| `pnpm test:coverage` | Run tests with coverage report |
-| `pnpm lint` | Check code for linting errors |
-| `pnpm lint:fix` | Fix auto-fixable linting errors |
-| `pnpm format` | Format code with Prettier |
-| `pnpm format:check` | Check code formatting |
-| `pnpm prisma:generate` | Generate Prisma Client |
-| `pnpm prisma:migrate` | Run database migrations |
-| `pnpm prisma:studio` | Open Prisma Studio |
-
-## API Endpoints
-
-### Health Check
-
-Check if the API is running:
-
-```
-GET /api/health
+curl -X POST http://localhost:3000/api/users/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "password123",
+    "name": "John Doe"
+  }'
 ```
 
 **Response:**
-
-```json
-{
-  "status": "ok",
-  "timestamp": "2024-01-01T00:00:00.000Z"
-}
-```
-
-### Authentication
-
-#### Register a new user
-
-```
-POST /api/users/register
-```
-
-**Request Body:**
-
-```json
-{
-  "email": "user@example.com",
-  "password": "password123",
-  "name": "John Doe"
-}
-```
-
-**Response:**
-
 ```json
 {
   "status": "success",
@@ -213,229 +171,136 @@ POST /api/users/register
       "createdAt": "2024-01-01T00:00:00.000Z",
       "updatedAt": "2024-01-01T00:00:00.000Z"
     },
-    "token": "jwt-token"
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
   }
 }
 ```
 
-#### Login
+### 2. Login
 
-```
-POST /api/users/login
-```
-
-**Request Body:**
-
-```json
-{
-  "email": "user@example.com",
-  "password": "password123"
-}
+```bash
+curl -X POST http://localhost:3000/api/users/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "demo@example.com",
+    "password": "demo123"
+  }'
 ```
 
-**Response:**
+**Demo Credentials:**
+- Email: `demo@example.com`
+- Password: `demo123`
 
-```json
-{
-  "status": "success",
-  "data": {
-    "user": {
-      "id": "uuid",
-      "email": "user@example.com",
-      "name": "John Doe"
-    },
-    "token": "jwt-token"
-  }
-}
+### 3. Get Profile (Protected)
+
+```bash
+curl http://localhost:3000/api/users/profile \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
-### User Management (Protected Routes)
+### 4. Update Profile
 
-All user management routes require authentication. Include the JWT token in the Authorization header:
-
-```
-Authorization: Bearer <jwt-token>
-```
-
-#### Get current user profile
-
-```
-GET /api/users/profile
+```bash
+curl -X PUT http://localhost:3000/api/users/profile \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Jane Doe"
+  }'
 ```
 
-#### Get all users
+### 5. List All Users
 
-```
-GET /api/users
-```
-
-#### Get user by ID
-
-```
-GET /api/users/:id
+```bash
+curl http://localhost:3000/api/users \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
-#### Update current user
+### 6. Interactive API Documentation
 
-```
-PUT /api/users/profile
-```
+Visit `http://localhost:3000/api-docs` to explore and test all endpoints using Swagger UI.
 
-**Request Body:**
+## Available Scripts
 
-```json
-{
-  "name": "Jane Doe",
-  "email": "jane@example.com"
-}
-```
-
-#### Delete current user
-
-```
-DELETE /api/users/profile
-```
-
-## API Documentation
-
-Interactive API documentation is available via Swagger UI at:
-
-```
-http://localhost:3000/api-docs
-```
-
-## Database
-
-This template uses PostgreSQL with Prisma ORM. The database schema is defined in `prisma/schema.prisma`.
-
-### Prisma Commands
-
-- **Generate Client**: `pnpm prisma:generate`
-- **Create Migration**: `pnpm prisma:migrate`
-- **Reset Database**: `pnpm prisma migrate reset`
-- **Open Prisma Studio**: `pnpm prisma:studio`
+| Script | Description |
+|--------|-------------|
+| `pnpm dev` | Start development server with hot reload |
+| `pnpm build` | Compile TypeScript to JavaScript |
+| `pnpm start` | Run the production build |
+| `pnpm test` | Run all tests |
+| `pnpm test:watch` | Run tests in watch mode |
+| `pnpm test:coverage` | Run tests with coverage report |
+| `pnpm lint` | Check code for linting errors |
+| `pnpm lint:fix` | Fix auto-fixable linting errors |
+| `pnpm format` | Format code with Prettier |
+| `pnpm format:check` | Check code formatting |
+| `pnpm db:generate` | Generate Prisma Client |
+| `pnpm db:migrate` | Run database migrations |
+| `pnpm db:push` | Push schema changes without migration |
+| `pnpm db:seed` | Seed database with demo data |
+| `pnpm db:reset` | Reset database and re-run migrations |
+| `pnpm db:studio` | Open Prisma Studio (database GUI) |
 
 ## Testing
 
-This project uses Jest and Supertest for testing.
+This project includes comprehensive test coverage across multiple layers:
 
-Run tests:
+- **Unit Tests**: Services, utilities, validation schemas
+- **Integration Tests**: API endpoints with authentication
+- **End-to-End Tests**: Complete user flows
 
 ```bash
+# Run all tests
 pnpm test
-```
 
-Run tests with coverage:
+# Run tests in watch mode
+pnpm test:watch
 
-```bash
+# Run tests with coverage
 pnpm test:coverage
 ```
 
-Run tests in watch mode:
+**Test Coverage:**
+- Authentication service (password hashing, JWT tokens)
+- User validation schemas
+- User API endpoints (registration, login, CRUD)
+- Rate limiting
+- Error handling
 
-```bash
-pnpm test:watch
-```
+## Future Extensions
 
-## Environment Variables
+Potential enhancements for this template:
 
-Configure your application using environment variables in `.env`:
+### Features
+- **Role-Based Access Control (RBAC)** - Admin, user, guest roles
+- **Email Verification** - Email confirmation for new accounts
+- **Password Reset** - Forgot password flow with email tokens
+- **Refresh Tokens** - Long-lived refresh tokens for better UX
+- **Two-Factor Authentication (2FA)** - TOTP-based 2FA
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `PORT` | Server port | `3000` |
-| `NODE_ENV` | Environment (development/production) | `development` |
-| `DATABASE_URL` | PostgreSQL connection string | - |
-| `JWT_SECRET` | Secret key for JWT signing | - |
-| `JWT_EXPIRES_IN` | JWT token expiration time | `7d` |
-| `ALLOWED_ORIGINS` | Allowed CORS origins (comma-separated) | `*` |
+### Additional Entities
+- **Posts** - User-generated content system
+- **Comments** - Threaded discussions
+- **Tags/Categories** - Content organization
 
-## Docker Deployment
-
-### Build Docker Image
-
-```bash
-docker build -t ts-express-api .
-```
-
-### Run with Docker Compose
-
-```bash
-docker-compose up -d
-```
-
-This will start:
-- PostgreSQL database on port 5432
-- API server on port 3000
-
-### Stop Services
-
-```bash
-docker-compose down
-```
-
-## Code Quality
-
-### Linting
-
-This project uses ESLint with TypeScript support:
-
-```bash
-pnpm lint        # Check for issues
-pnpm lint:fix    # Auto-fix issues
-```
-
-### Formatting
-
-Code formatting is handled by Prettier:
-
-```bash
-pnpm format       # Format all files
-pnpm format:check # Check formatting
-```
-
-## CI/CD
-
-This project includes a GitHub Actions workflow that:
-
-- Runs linting and formatting checks
-- Executes tests with coverage
-- Builds the TypeScript project
-- Builds Docker image
-- Uploads coverage reports to Codecov
-
-The workflow runs on every push and pull request to `main` and `develop` branches.
-
-## Security Features
-
-- **JWT Authentication** - Secure token-based authentication
-- **Password Hashing** - Bcrypt for secure password storage
-- **Rate Limiting** - Protection against brute-force attacks
-- **CORS** - Configurable cross-origin requests
-- **Input Validation** - Zod schemas for request validation
-- **Environment Variables** - Sensitive data kept in environment variables
-
-## Logging
-
-Application logs are stored in the `logs/` directory:
-
-- `all.log` - All application logs
-- `error.log` - Error-level logs only
-
-Logs are also output to the console with color-coding in development mode.
+### Infrastructure
+- **Redis Caching** - Session storage and caching layer
+- **WebSocket Support** - Real-time features
+- **Background Jobs** - Async task processing
+- **Monitoring** - Error tracking and metrics
 
 ## License
 
 ISC
 
-## Contributing
+---
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+**Quick Start Checklist:**
 
-## Support
-
-For issues and questions, please open an issue on GitHub.
+- [ ] Clone repository
+- [ ] Run `pnpm install`
+- [ ] Copy `.env.example` to `.env`
+- [ ] Run `docker-compose up -d`
+- [ ] Run `pnpm db:seed`
+- [ ] Visit `http://localhost:3000/api-docs`
+- [ ] Login with `demo@example.com` / `demo123`

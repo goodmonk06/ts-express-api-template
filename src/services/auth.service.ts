@@ -15,7 +15,7 @@ export class AuthService {
   generateToken(userId: string): string {
     return jwt.sign({ userId }, jwtConfig.secret, {
       expiresIn: jwtConfig.expiresIn,
-    });
+    } as any);
   }
 
   verifyToken(token: string): { userId: string } | null {

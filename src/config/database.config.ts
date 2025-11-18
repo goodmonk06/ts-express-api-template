@@ -8,7 +8,6 @@ const prismaClientSingleton = () => {
 };
 
 declare global {
-  // eslint-disable-next-line no-var
   var prismaGlobal: undefined | ReturnType<typeof prismaClientSingleton>;
 }
 
@@ -18,7 +17,7 @@ if (process.env.NODE_ENV !== 'production') {
   globalThis.prismaGlobal = prisma;
 }
 
-prisma.$connect().catch((error) => {
+prisma.$connect().catch((error: unknown) => {
   logger.error(`Failed to connect to database: ${error}`);
 });
 

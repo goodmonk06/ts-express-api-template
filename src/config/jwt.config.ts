@@ -1,4 +1,7 @@
-export const jwtConfig = {
+export const jwtConfig: {
+  secret: string;
+  expiresIn: string;
+} = {
   secret: process.env.JWT_SECRET || 'default-secret-change-this',
   expiresIn: process.env.JWT_EXPIRES_IN || '7d',
-} as const;
+};
